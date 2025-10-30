@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MEJAWD - Provider Games (v27_fix10)</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#00ff66;
+    --panel-bg:rgba(10,12,10,0.65);
+    --glass:rgba(255,255,255,0.03);
+    --text:#e9f7ef;
+    --muted:#b7c3b8;
+    --btn-glow:0 6px 20px rgba(0,255,102,0.12);
+    --green:#00c764;
+    --yellow:#f1c40f;
+    --red:#e74c3c;
+    --electric1: rgba(173,216,255,0.95);
+    --electric2: rgba(180,230,255,0.85);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Poppins',sans-serif;background:url('./assets/background.png') center/cover no-repeat fixed;color:var(--text)}
+  .logo-container{max-width:320px;margin:18px auto 6px}.logo-container img{width:100%;display:block}
+  .banner{max-width:1200px;margin:6px auto 18px;padding:0 12px}.banner img{width:100%;height:auto;border-radius:12px;display:block;box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+  .cta-row{display:flex;gap:14px;justify-content:center;margin:14px 12px}
+  .btn{padding:12px 28px;border-radius:10px;font-weight:800;border:none;cursor:pointer;box-shadow:var(--btn-glow);transition:transform .15s ease}
+  .btn-daftar{background:linear-gradient(180deg,#19b95a,#0fa14b);color:#001}
+  .btn-login{background:linear-gradient(180deg,#d94a3a,#b83a2c);color:#fff}
+  .muted-tiny{font-size:12px;color:var(--muted);margin-top:6px;text-align:center}
+
+  .provider-wrapper{width:94%;max-width:1180px;margin:18px auto;padding:14px;border-radius:12px;background:var(--panel-bg);position:relative;overflow:hidden;box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+  .provider-inner{display:flex;align-items:center;gap:12px;overflow:hidden;padding:6px 48px}
+  .provider-list{display:flex;gap:12px}
+  .btn-provider{display:flex;flex-direction:column;align-items:center;gap:6px;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;color:var(--text);min-width:92px;cursor:pointer}
+  .btn-provider img{width:58px;height:58px;border-radius:50%;padding:6px;object-fit:contain}
+  .btn-provider span{font-weight:700;font-size:13px;color:var(--text)}
+  .btn-provider.active{outline:2px solid rgba(0,255,102,0.12)}
+
+  .arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:8px;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:22px;cursor:pointer}
+  .arrow.left{left:10px}.arrow.right{right:10px}
+
+  .provider-title{margin:14px 0 6px;font-size:24px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text);text-align:center}
+
+  /* Grid game section (4 fixed columns) */
+  .games{width:94%;max-width:1400px;margin:10px auto 80px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  @media (max-width:1200px){ .games{grid-template-columns:repeat(4,1fr)} }
+  @media (max-width:900px){ .games{grid-template-columns:repeat(4,1fr)} }
+  @media (max-width:600px){ .games{grid-template-columns:repeat(4,1fr)} }
+
+  .game-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.25));border-radius:10px;overflow:hidden;position:relative;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+  .game-card img{width:100%;height:160px;object-fit:cover;display:block}
+
+  .label-rtp{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:700;color:#fff;z-index:5}
+  .label-green{background:var(--green)}
+  .label-yellow{background:var(--yellow);color:#000}
+  .label-red{background:var(--red)}
+
+  .star-overlay{position:absolute;top:-18px;left:50%;transform:translateX(-50%);z-index:8;pointer-events:none;display:none}
+  .star-overlay img{width:46px;height:46px;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.6))}
+
+  .lightning{position:absolute;inset:0;pointer-events:none;z-index:7;mix-blend-mode:screen;display:none}
+  .lightning.active{display:block;animation:flash 1.2s infinite}
+  @keyframes flash{0%{opacity:0}10%{opacity:1}30%{opacity:0.3}60%{opacity:0.9}100%{opacity:0}}
+  @keyframes lightningFlash{0%{opacity:0;transform:translateX(0)}20%{opacity:1;transform:translateX(2px)}40%{opacity:0.4;transform:translateX(-2px)}60%{opacity:1;transform:translateX(2px)}80%{opacity:0.6;transform:translateX(-2px)}100%{opacity:0;transform:translateX(0)}}
+  .modal-lightning{display:none;font-size:32px;color:#00ccff;text-shadow:0 0 12px #00ccff,0 0 24px #00aaff;animation:lightningFlash 0.8s linear infinite;user-select:none}
+  .modal-lightning.active{display:inline-block}
+
+  .progress-section{padding:8px 0;display:flex;flex-direction:column;align-items:center}
+  .progress-text{font-weight:700;font-size:13px;margin-bottom:4px}
+  .progress-bar{width:70%;height:8px;background:rgba(255,255,255,0.1);border-radius:6px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#0ddc7a,#00c764);width:0%;transition:width .3s ease}
+
+  .game-actions{display:flex;flex-direction:column;gap:8px;padding:10px;align-items:center}
+  .action-btn{width:70%;padding:10px;border-radius:8px;border:none;font-weight:800;text-transform:uppercase;cursor:pointer;transition:transform .08s ease}
+  .action-btn:active{transform:translateY(1px) scale(.995)}
+  .boost{background:linear-gradient(180deg,#0ddc7a,#00c764);color:#001}
+  .lihat{background:linear-gradient(180deg,#f1c40f,#e2b607);color:#000}
+
+  /* modal backdrop */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9999;padding:18px}
+  .modal{width:100%;max-width:520px;background:#000;border-radius:8px;overflow:hidden;border:6px solid rgba(0,0,0,0.2);position:relative}
+  .modal-head{display:flex;align-items:center;gap:10px;padding:12px;background:linear-gradient(90deg,#0b0b0b,#072107);color:var(--text)}
+  .modal-body{Padding:14px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.2));color:var(--text)}
+  .modal-actions{display:flex;gap:10px;padding:12px;justify-content:center}
+  .btn-ghost{flex:1;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.04);color:var(--text);font-weight:800;cursor:pointer}
+  .btn-primary{flex:1;padding:10px;border-radius:8px;border:none;background:var(--accent);color:#001;font-weight:900;cursor:pointer}
+  .close-x{position:absolute;right:10px;top:8px;background:#ff2b2b;color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900}
+
+  /* boost modal specific */
+  .large-percent{background:var(--accent);color:#001;padding:10px;border-radius:6px;font-weight:900;font-size:34px;text-align:center;margin-bottom:12px;display:inline-block;min-width:120px}
+  .desc{font-size:13px;color:#c9eccc;margin-bottom:12px;line-height:1.4}
+
+  /* lihat pola modal styled like screenshot */
+  .pola-modal{max-width:520px;background:#000;border-radius:6px;overflow:hidden;border:6px solid #0fa14b;position:relative}
+  .pola-head{background:var(--green);color:#fff;padding:10px;font-weight:800;text-align:center}
+  .pola-body{padding:12px;background:#000;color:#fff}
+  .pola-section{background:#0b0b0b;padding:10px;margin:8px 0;border-radius:4px}
+  .pola-cta{background:var(--green);color:#001;padding:8px;border-radius:4px;text-align:center;font-weight:800;margin:8px 0}
+  .note{background:#071207;color:#bfecc3;padding:10px;border-radius:4px;margin-top:8px;font-size:13px}
+
+  /* big CTA buttons inside pola modal */
+  .pola-actions{display:flex;gap:8px;margin-top:8px}
+  .pola-actions .daftar{flex:1;background:var(--green);color:#001;padding:10px;border-radius:4px;border:none;font-weight:900;cursor:pointer}
+  .pola-actions .main{flex:1;background:var(--red);color:#fff;padding:10px;border-radius:4px;border:none;font-weight:900;cursor:pointer}
+
+  /* close X for pola modal */
+  .pola-close{position:absolute;right:-18px;top:-18px;width:48px;height:48px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer;z-index:12}
+
+  /* ticker */
+  .ticker{position:fixed;left:0;right:0;bottom:0;padding:8px;background:rgba(0,0,0,0.6);color:#fff;font-weight:800;text-align:center;z-index:9998}
+  .ticker .msg{display:inline-block;padding:6px 10px;background:rgba(0,0,0,0.4);border-radius:6px}
+
+  @media (max-width:600px){
+    .modal{max-width:92%}
+    .pola-modal{max-width:92%}
+    .game-card img{height:120px}
+  }
+
+
+/* ✨ Efek Petir Rotasi Lembut dengan Warna Khas Tiap Provider */
+.btn-provider::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  background: url('./assets/images/petir.webp') center/cover no-repeat;
+  border-radius: 50%;
+  animation: rotatePetir 8s linear infinite;
+  opacity: 0.6;
+  z-index: 0;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+.btn-provider img {
+  position: relative;
+  z-index: 1;
+  opacity: 1 !important;
+}
+@keyframes rotatePetir {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Warna lembut per provider */
+.btn-provider[data-provider="PP"]::before { filter: drop-shadow(0 0 10px rgba(0,255,255,0.6)); }
+.btn-provider[data-provider="PG"]::before { filter: drop-shadow(0 0 10px rgba(180,100,255,0.6)); }
+.btn-provider[data-provider="GG"]::before { filter: drop-shadow(0 0 10px rgba(255,230,120,0.6)); }
+.btn-provider[data-provider="PS"]::before { filter: drop-shadow(0 0 10px rgba(255,120,120,0.6)); }
+.btn-provider[data-provider="NC"]::before { filter: drop-shadow(0 0 10px rgba(100,255,180,0.6)); }
+.btn-provider[data-provider="HB"]::before { filter: drop-shadow(0 0 10px rgba(255,180,100,0.6)); }
+.btn-provider[data-provider="FP"]::before { filter: drop-shadow(0 0 10px rgba(255,140,200,0.6)); }
+
+/* Saat aktif, sedikit lebih terang */
+.btn-provider.active[data-provider="PP"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(0,255,255,0.8)); }
+.btn-provider.active[data-provider="PG"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(180,100,255,0.8)); }
+.btn-provider.active[data-provider="GG"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(255,230,120,0.8)); }
+.btn-provider.active[data-provider="PS"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(255,120,120,0.8)); }
+.btn-provider.active[data-provider="NC"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(100,255,180,0.8)); }
+.btn-provider.active[data-provider="HB"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(255,180,100,0.8)); }
+.btn-provider.active[data-provider="FP"]::before { opacity: 0.85; filter: drop-shadow(0 0 14px rgba(255,140,200,0.8)); }
+
+.btn-provider {
+  position: relative;
+  overflow: hidden;
+}
+.btn-provider::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  background: url('./assets/images/petir.webp') center/cover no-repeat;
+  opacity: 0.6;
+  filter: drop-shadow(0 0 8px rgba(0,200,255,0.7));
+  border-radius: 50%;
+  animation: rotatePetir 8s linear infinite;
+  z-index: 0;
+}
+.btn-provider img {
+  position: relative;
+  z-index: 1;
+  opacity: 1 !important;
+  transition: opacity 0.3s ease;
+}
+.btn-provider.active::before {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px rgba(0,255,255,0.9));
+}
+@keyframes rotatePetir {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+/* 🟢 Perbaikan Klik & Efek Aurora Hijau di Belakang Provider */
+.btn-provider::before {
+  pointer-events: none; /* biar efek petir tidak blok area klik */
+}
+.btn-provider::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  background: radial-gradient(circle at 50% 60%, rgba(100,255,180,0.25), transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: auroraGlow 10s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes auroraGlow {
+  0% { transform: scale(1) rotate(0deg); opacity: 0.25; }
+  50% { transform: scale(1.1) rotate(10deg); opacity: 0.35; }
+  100% { transform: scale(1) rotate(-10deg); opacity: 0.25; }
+}
+
+
+/* 🛠️ Fix Tombol Geser & Efek Aurora Hijau Nyata */
+.btn-provider {
+  position: relative;
+  overflow: visible !important;
+  z-index: 1;
+}
+.btn-provider::before,
+.btn-provider::after {
+  pointer-events: none;
+}
+.btn-provider::before {
+  z-index: 0;
+}
+.btn-provider::after {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle at 50% 60%, rgba(100,255,180,0.35), transparent 70%);
+  border-radius: 50%;
+  z-index: 0;
+  mix-blend-mode: screen;
+  animation: auroraShift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes auroraShift {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.25; }
+  50% { transform: scale(1.1) translate(-3px, 3px); opacity: 0.4; }
+  100% { transform: scale(1) translate(3px, -3px); opacity: 0.3; }
+}
+.btn-provider img {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* 🛠️ v27_fix17: Perbaikan Tombol Geser + Efek Transisi Provider */
+.arrow, .arrow.left, .arrow.right {
+  position: relative;
+  z-index: 99 !important;
+  pointer-events: auto !important;
+}
+
+.provider-wrapper, .provider-slider, .provider-list {
+  position: relative;
+  overflow: visible !important;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.btn-provider {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-provider::before,
+.btn-provider::after {
+  pointer-events: none;
+  z-index: 0;
+}
+
+.btn-provider img {
+  position: relative;
+  z-index: 2;
+}
+
+/* Efek fade lembut saat provider digeser */
+.provider-slider.fade-out {
+  opacity: 0;
+}
+.provider-slider.fade-in {
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Aurora tetap aktif dan terlihat lembut */
+.btn-provider::after {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle at 50% 60%, rgba(100,255,180,0.35), transparent 70%);
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation: auroraShift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes auroraShift {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.25; }
+  50% { transform: scale(1.1) translate(-3px, 3px); opacity: 0.4; }
+  100% { transform: scale(1) translate(3px, -3px); opacity: 0.3; }
+}
+
+
+/* 🌟 v27_fix18: Perbaikan tombol geser provider responsive */
+.arrow, .arrow.left, .arrow.right {
+  position: absolute !important;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100 !important;
+  color: #fff;
+  font-size: 24px;
+  transition: background 0.3s;
+}
+
+.arrow.left { left: 5px; }
+.arrow.right { right: 5px; }
+
+.arrow:hover {
+  background: rgba(0, 255, 150, 0.7);
+}
+
+@media (max-width: 600px) {
+  .arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+}
+.arrow.left { left: -40px; }
+.arrow.right { right: -40px; }
+.arrow:hover { background: rgba(0,255,150,0.7); }
+
+.provider-wrapper, .provider-slider, .provider-list {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Pastikan aurora tetap tampil lembut */
+.btn-provider::after {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle at 50% 60%, rgba(100,255,180,0.35), transparent 70%);
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  animation: auroraShift 12s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Efek hover tombol */
+.arrow:hover svg, .arrow:hover i { filter: brightness(1.5); }
+
+
+/* 💎 v27_fix19: Layout provider lebih compact & tombol geser di dalam layar */
+.provider-wrapper, .provider-slider, .provider-list {
+  position: relative;
+  max-width: 92%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  overflow: visible !important;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Perkecil ukuran provider sedikit */
+.btn-provider {
+  transform: scale(0.88);
+  transition: transform 0.3s ease;
+}
+.btn-provider:hover {
+  transform: scale(0.95);
+}
+
+/* Perbaikan tombol geser agar tetap di dalam layar */
+.arrow, .arrow.left, .arrow.right {
+  position: absolute !important;
+  top: 52%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100 !important;
+  transition: background 0.3s ease;
+}
+.arrow.left { left: -20px; }
+.arrow.right { right: -20px; }
+.arrow:hover { background: rgba(0,255,150,0.7); }
+
+
+/* 🎯 v27_fix20: Penyesuaian ukuran & layout tombol BOOST RTP dan LIHAT POLA */
+.game-card .btn, .btn-boost, .btn-pola, .boost-btn, .pola-btn {
+  display: block;
+  width: 85% !important;      /* diperlebar */
+  margin: 6px auto;           /* center tombol */
+  padding: 6px 0 !important;  /* tinggi diperkecil */
+  font-size: 14px !important; /* teks lebih kecil */
+  border-radius: 6px !important;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.btn-boost, .boost-btn {
+  background: linear-gradient(180deg, #10d876, #0db86b);
+  color: #fff;
+  font-weight: 600;
+}
+.btn-boost:hover, .boost-btn:hover {
+  background: linear-gradient(180deg, #12f080, #0ed075);
+}
+
+.btn-pola, .pola-btn {
+  background: linear-gradient(180deg, #ffcc00, #e0b100);
+  color: #000;
+  font-weight: 600;
+}
+.btn-pola:hover, .pola-btn:hover {
+  background: linear-gradient(180deg, #ffe44d, #f5c700);
+}
+
+/* Perataan container tombol */
+.game-card .buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+
+/* 🧩 v27_fix21: Styling tombol dinamis di dalam game-card */
+.game-card button {
+  display: block;
+  width: 85% !important;        /* diperlebar */
+  margin: 6px auto;             /* rata tengah */
+  padding: 6px 0 !important;    /* tinggi pipih */
+  font-size: 14px !important;   /* font lebih kecil */
+  border-radius: 6px !important;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Warna tombol berdasarkan isi teks */
+.game-card button:contains("BOOST RTP"),
+.game-card button:contains("Boost RTP") {
+  background: linear-gradient(180deg, #10d876, #0db86b);
+  color: #fff;
+}
+.game-card button:contains("BOOST RTP"):hover,
+.game-card button:contains("Boost RTP"):hover {
+  background: linear-gradient(180deg, #12f080, #0ed075);
+}
+
+.game-card button:contains("LIHAT POLA"),
+.game-card button:contains("Lihat Pola") {
+  background: linear-gradient(180deg, #ffcc00, #e0b100);
+  color: #000;
+}
+.game-card button:contains("LIHAT POLA"):hover,
+.game-card button:contains("Lihat Pola"):hover {
+  background: linear-gradient(180deg, #ffe44d, #f5c700);
+}
+
+/* Penataan container tombol */
+.game-card {
+  text-align: center;
+}
+.game-card button + button {
+  margin-top: 6px;
+}
+/* ✨ Responsive Footer Logo Section */
+.logo-footer {
+  
+  padding: 30px 20px;
+  text-align: center;
+  margin-top: 60px;
+}
+
+.logo-footer .logo-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto 20px;
+}
+
+.logo-footer .logo-item img {
+  width: 110px;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  opacity: 0.9;
+}
+
+.logo-footer .logo-item img:hover {
+  transform: scale(1.08);
+  opacity: 1;
+}
+
+.footer-text {
+  max-width: 960px;
+  margin: 0 auto;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #c9eccc;
+  
+  padding: 14px 18px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .logo-footer .logo-item img {
+    width: 90px;
+  }
+  .footer-text {
+    font-size: 12px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-footer .logo-container {
+    gap: 18px;
+  }
+  .logo-footer .logo-item img {
+    width: 70px;
+  }
+}
+
+
+</style>
+</head>
+<body>
+  <div class="logo-container"><img src="./assets/images/logo.png.png" alt="MEJAWD logo"></div>
+  <div class="banner"><img src="./assets/images/slide-gilaslot88.jpg" alt="banner"></div>
+
+  <div class="cta-row">
+    <a href="https://mejawdrx.com/?referralid=jejeop"><button class="btn btn-daftar">DAFTAR</button></a>
+    <a href="https://mejawdrx.com/?referralid=jejeop"><button class="btn btn-login">LOGIN</button></a>
+  </div>
+  <div class="muted-tiny">Server Slot Tergacor • Provider pilihan & 200 game terbaik</div>
+
+  <section class="provider-wrapper">
+    <div class="arrow left" id="arrowLeft">❮</div>
+    <div class="provider-inner" id="providerInner">
+      <div class="provider-list" id="providerList">
+        <div class="provider-item"><div class="btn-provider" data-provider="PP"><img src="./assets/btn-provider/pragmaticplay_circle.webp" alt="PP"><span>PP</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="PG"><img src="./assets/btn-provider/pgsoft_circle.webp" alt="PG"><span>PG</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="GG"><img src="./assets/btn-provider/ggsoft_circle.webp" alt="GG"><span>GG</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="PS"><img src="./assets/btn-provider/playstar_circle.webp" alt="PS"><span>PS</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="NC"><img src="./assets/btn-provider/nolimitcity_circle.webp" alt="NC"><span>NC</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="HB"><img src="./assets/btn-provider/habanero_circle.webp" alt="HB"><span>HB</span></div></div>
+        <div class="provider-item"><div class="btn-provider" data-provider="FP"><img src="./assets/btn-provider/fatpanda_circle.webp" alt="FP"><span>FP</span></div></div>
+      </div>
+    </div>
+    <div class="arrow right" id="arrowRight">❯</div>
+  </section>
+
+  <h2 class="provider-title" id="providerTitle">PRAGMATIC PLAY</h2>
+
+  <main id="gamesRoot" class="games" aria-live="polite"></main>
+
+  <!-- Boost modal -->
+  <div class="modal-backdrop" id="boostModal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="boostProvider">Provider</h3>
+        <div class="close-x" id="closeBoost">✕</div>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="position:relative;width:100px">
+            <img id="boostThumb" src="./assets/images/placeholder_game.png" alt="" style="width:100px;height:100px;border-radius:6px;object-fit:cover;border:4px solid rgba(255,255,255,0.03)">
+            <!-- modal overlays (only in modal) -->
+            <img id="modalStar" src="./assets/star3.webp" alt="star" style="width:46px;height:46px;display:none;position:absolute;left:50%;transform:translateX(-50%);top:-22px;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6));">
+            <img id="modalLightning" src="./assets/petir.webp" alt="petir" style="width:42px;height:42px;display:none;position:absolute;left:82%;transform:translateX(-50%);top:-8px;filter:drop-shadow(0 6px 12px rgba(0,170,255,0.6));">
+          </div>
+          <div style="flex:1">
+            <div style="font-size:13px;color:#c9eccc;margin-bottom:8px" id="boostTitle">RTP BERHASIL DIBOOST MENJADI</div>
+            <div style="display:flex;align-items:center;gap:10px">
+      <div class="large-percent" id="boostPercent">95%</div>
+      <img id="modalStar" src="./assets/star3.webp" alt="star" style="width:42px;height:42px;display:none;filter:drop-shadow(0 0 8px rgba(255,255,255,0.6))">
+      <div id="modalLightning" class="modal-lightning" aria-hidden="true">⚡</div>
+    </div>
+          </div>
+        </div>
+
+        <div class="desc" id="boostDesc">BOOST RTP adalah sebuah fitur tambahan bagi para pecinta permainan slot untuk menaikkan persentase KEMENANGAN dari game slot yang akan dimainkan agar game tersebut semakin gacor dengan harapan mendapatkan JACKPOT yang LEBIH BESAR dan LEBIH CEPAT daripada situs lain yang tidak memiliki fitur BOOST RTP ini.</div>
+
+        <div class="modal-actions">
+          <button class="btn-ghost" id="boostAgain">KEMBALI DAN BOOST LAGI</button>
+          <button class="btn-primary" id="playNowBoost">MAIN SEKARANG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lihat Pola modal -->
+  <div class="modal-backdrop" id="polaModal">
+    <div class="pola-modal" role="dialog" aria-modal="true">
+      <div class="pola-close" id="polaClose">X</div>
+      <div class="pola-head">Tips Bermain Slot <span id="polaProviderName">Provider</span></div>
+      <div class="pola-body">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-weight:700;background:#0b0b0b;padding:4px 8px;border-radius:4px">Provider</div>
+          <div id="polaProvider" style="font-weight:700;background:#081018;padding:4px 8px;border-radius:4px">Pragmatic Play</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-weight:700;background:#0b0b0b;padding:4px 8px;border-radius:4px">Stake Bet</div>
+          <div id="polaStake" style="font-weight:700;background:#081018;padding:4px 8px;border-radius:4px">400 - 9.8K</div>
+        </div>
+
+        <div class="pola-cta">PAKAI POLA KHUSUS MEJAWD</div>
+
+        <div class="pola-section">
+          <div style="font-weight:800;color:#1e9fff;margin-bottom:8px">Step 1: Panaskan Mesin Slot!</div>
+          <div>25X Spin normal (manual tanpa ceklis)</div>
+          <div style="font-weight:800;color:#1e9fff;margin-top:10px;margin-bottom:8px">Step 2: Naikkan Bet!</div>
+          <div>20X Spin cepat (auto)</div>
+          <div style="font-weight:800;color:#1e9fff;margin-top:10px;margin-bottom:8px">Step 3: Stop Spin!</div>
+          <div>3X Tangkap spin (manual tanpa ceklis)</div>
+          <div style="font-weight:800;color:#1e9fff;margin-top:10px;margin-bottom:8px">Langkah Terakhir</div>
+          <div>10X Spin turbo (manual)</div>
+        </div>
+
+        <div class="pola-cta">LAKUKAN TIPS DARI AWAL & ULANGI</div>
+
+        <div class="note">
+          <strong>Note:</strong><br>
+          JIKA TERSEDIA ATAU INGIN MEMBELI FITUR FREE SPIN LAKUKAN POLA DIATAS SEBANYAK 2X<br>
+          SEMUA KEMENANGAN BERDASARKAN HOKI DAN KEBERUNTUNGAN SETIAP PEMAIN YA BOSSKU.
+        </div>
+
+        <div class="pola-actions">
+          <button class="daftar" id="polaDaftar">DAFTAR</button>
+          <button class="main" id="polaMain">MAIN</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="ticker" id="ticker"><span class="msg" id="tickerMsg">Selamat datang di MEJAWD</span></div>
+
+<script>
+// Provider metadata
+const providerMeta = {'PP':'Pragmatic Play','PG':'PG Soft','GG':'GG Soft','PS':'Playstar','NC':'Nolimit City','HB':'Habanero','FP':'Fat Panda'};
+const stakeMeta = {'PP':'400 - 9.8K','PG':'400 - 8.5K','GG':'400 - 10K','PS':'400 - 5K','NC':'400 - 12K','HB':'400 - 9.8K','FP':'400 - 6K'};
+
+// URL ke JSON (user-provided)
+const dataUrl = 'https://raw.githubusercontent.com/mejajp1-debug/mejawd-rtp/refs/heads/main/rtpData.json';
+
+// Helpers untuk cache per tanggal
+function getTodayKey(){ const d=new Date(); return 'rtpData_' + d.getFullYear() + (d.getMonth()+1).toString().padStart(2,'0') + d.getDate().toString().padStart(2,'0'); }
+function clearOldCaches(){ // hapus semua kunci rtpData_*
+  Object.keys(localStorage).forEach(k=>{ if(k.startsWith('rtpData_') && k!==getTodayKey()) localStorage.removeItem(k); });
+}
+
+// Load JSON harian (jika tidak ada dalam localStorage untuk hari ini -> fetch)
+async function loadRTPJsonDaily(){
+  const key = getTodayKey();
+  const cached = localStorage.getItem(key);
+  if(cached) return JSON.parse(cached);
+  try{
+    const res = await fetch(dataUrl, {cache: 'no-store'});
+    if(!res.ok) throw new Error('fetch failed');
+    const json = await res.json();
+    // expectation: { date: "YYYY-MM-DD", rtp: { "PR":72.3, ... } }
+    // store the raw json under today's key
+    clearOldCaches();
+    localStorage.setItem(key, JSON.stringify(json));
+    return json;
+  }catch(err){
+    console.error('Gagal load JSON, fallback ke cache jika ada', err);
+    // fallback ke cache terakhir available
+    const last = Object.keys(localStorage).filter(k=>k.startsWith('rtpData_')).sort().pop();
+    if(last) return JSON.parse(localStorage.getItem(last));
+    // fallback default minimal
+    return { date: null, rtp: {'PP':65,'PG':60,'GG':60,'PS':62,'NC':61,'HB':59,'FP':63} };
+  }
+}
+
+// Build game list for a provider using base percent from JSON
+
+function buildGamesFromProviderBase(providerCode, basePercent) {
+  // tentukan total card aktif per provider
+  let total = 200;
+  switch (providerCode.toUpperCase()) {
+    case 'PP': total = 200; break;      // tidak dihapus
+    case 'PG': total = 152; break;      // hapus 153–200
+    case 'GG': total = 18; break;       // hapus 19–200
+    case 'PS': total = 81; break;       // hapus 82–200
+    case 'NC': total = 118; break;      // hapus 119–200
+    case 'HB': total = 185; break;      // hapus 186–200
+    case 'FP': total = 23; break;       // hapus 24–200
+  }
+
+  const key = getTodayKey() + '_dailyvals_' + providerCode;
+  const raw = localStorage.getItem(key);
+  if (raw) {
+    try { return JSON.parse(raw); } catch (e) { /* fallthrough */ }
+  }
+
+  const arr = [];
+  const variance = 5.0; // ±5%
+  for (let i = 1; i <= total; i++) {
+    const delta = (Math.random() * (variance * 2)) - variance; // -5 .. +5
+    let val = Number((parseFloat(basePercent) + delta).toFixed(1));
+    if (isNaN(val)) val = parseFloat(basePercent) || 60.0;
+    if (val < 0) val = 0.0;
+    if (val > 109.9) val = 109.9; // batas atas sesuai permintaan kamu sebelumnya
+    arr.push({ idx: i, name: providerCode + ' Game ' + i, percent: val, boosted: false });
+  }
+
+  try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+  return arr;
+}
+
+
+// Label helper
+function getLabel(percent){
+  if(percent>70) return {text:'RTP Lagi Gacor',cls:'label-green',star:3};
+  if(percent>=40) return {text:'RTP Lagi Biasa',cls:'label-yellow',star:2};
+  return {text:'Tidak Bagus',cls:'label-red',star:1};
+}
+
+// render star on card (no-op for main cards, modal uses its own)
+function renderStarOnCard(card, starLevel){ /* left intentionally minimal */ }
+
+// Build a DOM card for a single game item
+function buildGameCard(providerCode, data, providerKey){
+  const card = document.createElement('div'); card.className='game-card';
+  const img = document.createElement('img'); img.src = `./assets/images/${providerCode.toLowerCase()}/${data.idx}.png`; img.onerror = ()=> img.src='./assets/images/placeholder_game.png';
+
+  const lbl = getLabel(data.percent);
+  const label = document.createElement('div'); label.className='label-rtp '+lbl.cls; label.innerText = lbl.text;
+  card.appendChild(label);
+
+  const progressWrap = document.createElement('div'); progressWrap.className='progress-section';
+  const text = document.createElement('div'); text.className='progress-text'; text.innerText = (data.percent%1===0)?data.percent+'%':data.percent.toFixed(1)+'%';
+  const bar = document.createElement('div'); bar.className='progress-bar';
+  const fill = document.createElement('div'); fill.className='progress-fill'; fill.style.width = Math.min(100,data.percent)+'%';
+  bar.appendChild(fill); progressWrap.appendChild(text); progressWrap.appendChild(bar);
+
+  const actions = document.createElement('div'); actions.className='game-actions';
+  const b1 = document.createElement('button'); b1.className='action-btn boost'; b1.innerText='Boost RTP';
+  const b2 = document.createElement('button'); b2.className='action-btn lihat'; b2.innerText='Lihat Pola';
+
+  // boost click: increase percent by +3 - +5% (only for this game)
+  b1.addEventListener('click', ()=> {
+    // small random increase between 3.0 and 5.0
+    const inc = Math.round((3 + Math.random()*2) * 10)/10;
+    data.percent = Math.min(99.8, Math.round((data.percent + inc) * 10)/10);
+    data.boosted = true;
+    // update UI
+    text.innerText = (data.percent%1===0)?data.percent+'%':data.percent.toFixed(1)+'%';
+    fill.style.width = Math.min(100,data.percent)+'%';
+    // render star according to new percent
+    const newStar = getLabel(data.percent).star;
+    renderStarOnCard(card, newStar);
+    // persist the boosted value into localStorage under today's provider-game key
+    saveBoostedGame(providerCode, data.idx, data.percent);
+    // show boost modal
+    onBoostClick(providerCode, data, card, img, text, fill, inc);
+  });
+
+  b2.addEventListener('click', ()=> onLihatPola(providerCode));
+
+  actions.appendChild(b1); actions.appendChild(b2);
+
+  card.appendChild(img); card.appendChild(progressWrap); card.appendChild(actions);
+
+  // store refs
+  card._dataRef = data;
+  card._fillEl = fill;
+  card._percentText = text;
+  card._img = img;
+  return card;
+}
+
+// LocalStorage helpers to save per-game boosted values
+function boostedKeyForToday(providerCode){
+  return getTodayKey() + '_boosted_' + providerCode;
+}
+function saveBoostedGame(providerCode, idx, percent){
+  const key = boostedKeyForToday(providerCode);
+  const raw = localStorage.getItem(key);
+  const map = raw ? JSON.parse(raw) : {};
+  map['g'+idx] = percent;
+  localStorage.setItem(key, JSON.stringify(map));
+}
+function loadBoostedMap(providerCode){
+  const key = boostedKeyForToday(providerCode);
+  const raw = localStorage.getItem(key);
+  return raw ? JSON.parse(raw) : {};
+}
+
+// render all games for current provider
+function renderGamesForProvider(providerCode, basePercent){
+  const root = document.getElementById('gamesRoot'); root.innerHTML=''; const frag=document.createDocumentFragment();
+  const initialGames = buildGamesFromProviderBase(providerCode, basePercent, 200);
+  // apply per-game boosts from localStorage if present
+  const boosted = loadBoostedMap(providerCode);
+  initialGames.forEach(g=>{
+    if(boosted['g'+g.idx] !== undefined){
+      g.percent = Number(parseFloat(boosted['g'+g.idx]).toFixed(1));
+      g.boosted = true;
+    }
+    frag.appendChild(buildGameCard(providerCode,g,providerCode));
+  });
+  root.appendChild(frag);
+}
+
+// Modals (same as your previous)
+const boostModal = document.getElementById('boostModal');
+const boostProviderEl = document.getElementById('boostProvider');
+const boostPercentEl = document.getElementById('boostPercent');
+const boostTitleEl = document.getElementById('boostTitle');
+const boostThumb = document.getElementById('boostThumb');
+const boostDesc = document.getElementById('boostDesc');
+const modalStar = document.getElementById('modalStar');
+const modalLightning = document.getElementById('modalLightning');
+const closeBoost = document.getElementById('closeBoost');
+const boostAgainBtn = document.getElementById('boostAgain');
+const playNowBoostBtn = document.getElementById('playNowBoost');
+let _currentBoostCard = null;
+
+function onBoostClick(providerCode, data, card, imgEl, textEl, fillEl, incAmount){
+  _currentBoostCard = card;
+  boostProviderEl.innerText = providerMeta[providerCode] || providerCode;
+  boostThumb.src = imgEl.src;
+  boostPercentEl.innerText = (data.percent%1===0)?data.percent+'%':data.percent.toFixed(1)+'%';
+  boostTitleEl.innerText = data.percent >= 75 ? 'RTP SUDAH LIMIT' : 'RTP BERHASIL DI-BOOST MENJADI';
+  boostDesc.innerText = 'BOOST RTP adalah sebuah fitur tambahan bagi para pecinta permainan slot untuk menaikkan persentase KEMENANGAN dari game slot yang akan dimainkan agar game tersebut semakin gacor.';
+  const starLevel = getLabel(data.percent).star;
+  if(starLevel){
+    modalStar.style.display='block';
+    modalStar.src = starLevel===1 ? './assets/star1.png' : starLevel===2 ? './assets/star2.webp' : './assets/star3.webp';
+  } else {
+    modalStar.style.display='none';
+  }
+  if(starLevel===3){
+    modalLightning.style.display='block';
+  } else {
+    modalLightning.style.display='none';
+  }
+  boostModal.style.display='flex';
+  showTicker(randomMaskedName() + ' telah berhasil WD sebesar ' + randomAmount());
+}
+
+boostAgainBtn.addEventListener('click', ()=>{
+  if(!_currentBoostCard) return;
+  const data = _currentBoostCard._dataRef;
+  const inc = Math.round((3 + Math.random()*2) * 10)/10;
+  data.percent = Math.min(99.8, Math.round((data.percent + inc) * 10)/10);
+  _currentBoostCard._percentText.innerText = (data.percent%1===0)?data.percent+'%':data.percent.toFixed(1)+'%';
+  _currentBoostCard._fillEl.style.width = Math.min(100,data.percent)+'%';
+  renderStarOnCard(_currentBoostCard, getLabel(data.percent).star);
+  saveBoostedGame(data.name.slice(0,2), data.idx, data.percent); // best-effort: provider prefix from name
+  boostPercentEl.innerText = (data.percent%1===0)?data.percent+'%':data.percent.toFixed(1)+'%';
+  boostTitleEl.innerText = data.percent >=75 ? 'RTP SUDAH LIMIT' : 'RTP BERHASIL DI-BOOST MENJADI';
+  const starLevel2 = getLabel(data.percent).star;
+  if(starLevel2){
+    modalStar.style.display='block';
+    modalStar.src = starLevel2===1 ? './assets/star1.png' : starLevel2===2 ? './assets/star2.webp' : './assets/star3.webp';
+  } else {
+    modalStar.style.display='none';
+  }
+  if(starLevel2===3){
+    modalLightning.style.display='block';
+  } else {
+    modalLightning.style.display='none';
+  }
+  setTimeout(()=>{ boostModal.style.display='none'; }, 400);
+});
+
+closeBoost.addEventListener('click', ()=> boostModal.style.display='none');
+playNowBoostBtn.addEventListener('click', ()=> window.location.href='https://mejawdrx.com/?referralid=jejeop');
+
+// Lihat Pola modal stuff
+const polaModal = document.getElementById('polaModal');
+const polaProviderName = document.getElementById('polaProviderName');
+const polaProvider = document.getElementById('polaProvider');
+const polaStake = document.getElementById('polaStake');
+const polaDaftar = document.getElementById('polaDaftar');
+const polaMain = document.getElementById('polaMain');
+const polaClose = document.getElementById('polaClose');
+function onLihatPola(providerCode){
+  const name = providerMeta[providerCode] || providerCode;
+  polaProviderName.innerText = name;
+  polaProvider.innerText = name;
+  polaStake.innerText = stakeMeta[providerCode] || '200 - 9.8K';
+  polaModal.style.display = 'flex';
+  showTicker(randomMaskedName() + ' telah berhasil WD sebesar ' + randomAmount());
+}
+polaDaftar.addEventListener('click', ()=> window.location.href='https://mejawdrx.com/?referralid=jejeop');
+polaMain.addEventListener('click', ()=> window.location.href='https://mejawdrx.com/?referralid=jejeop');
+polaClose.addEventListener('click', ()=> polaModal.style.display='none');
+
+// ticker utils
+const tickerMsg = document.getElementById('tickerMsg');
+function showTicker(msg){ tickerMsg.innerText = msg; tickerMsg.style.opacity='1'; clearTimeout(window._t); window._t=setTimeout(()=>tickerMsg.style.opacity='0.9',7000); }
+function randomMaskedName(){ const names=['Sarivan','Sariyah','Sarif','Saras','Sarbudi','Sariag','Saryono','Sarsyahraafi14','marathin','oke123','ikhy26','luckydraw77','popayy','catoraja','khalidi','catoraja','cangkas111','ochinn','neslitemax99','hokiwin77','gass77','garaga123','starwin77','iwangs70','putrisinta','mosa77','dwiayu99 ','jahu28 ','denicandra','ilman77','ilman013','Gemoy777','rian123','aayam12345','danz160804','saputra23','kyubi9090 ','dzubaid','lekmin01','raja022','becak33 ','subur991','pensa13','apobelaju9455','bonok27','kuyy01','polingbalap ','20090103','aldy25 ','dody69','firman0188','tuyul2','jakpot123','vipstar77','jawawetan','bangbogerr111chankhan','daman1','maskopong','soffell555']; const n=names[Math.floor(Math.random()*names.length)]; return n.slice(0,3)+'***'+n.slice(-2); }
+function randomAmount(){ const v=Math.floor(100000+Math.random()*9000000); return v.toLocaleString('id-ID'); }
+setInterval(()=> showTicker(randomMaskedName() + ' telah berhasil WD sebesar ' + randomAmount()), 8000);
+
+// provider buttons interaction: load JSON daily then render provider games
+const providerEls = document.querySelectorAll('.btn-provider');
+providerEls.forEach(el=>el.addEventListener('click', async ()=>{
+  providerEls.forEach(it=>it.classList.remove('active'));
+  el.classList.add('active');
+  const code = el.getAttribute('data-provider');
+  document.getElementById('providerTitle').innerText = providerMeta[code] || code;
+  // load daily JSON, map provider code keys
+  const json = await loadRTPJsonDaily();
+  // JSON uses keys like PR/PG/GG... map to our codes if necessary
+  // try direct hit, else try small mapping
+  const rtpMap = json.rtp || {};
+  // prefer keys that match our provider codes, try some known aliases
+  const lookupKeys = [code, code.slice(0,2), code.replace('PP','PR')];
+  let base = null;
+  for(const k of lookupKeys) if(rtpMap[k]!==undefined){ base = rtpMap[k]; break; }
+  if(base===null){ // fallback: try to match by uppercase prefix
+    const found = Object.keys(rtpMap).find(k=>k.toUpperCase().startsWith(code.slice(0,2).toUpperCase()));
+    if(found) base = rtpMap[found];
+  }
+  if(base===null) base = 65; // safe default
+  renderGamesForProvider(code, base);
+}));
+
+// arrows
+document.getElementById('arrowLeft').addEventListener('click', ()=> document.getElementById('providerInner').scrollBy({left:-220,behavior:'smooth'}));
+document.getElementById('arrowRight').addEventListener('click', ()=> document.getElementById('providerInner').scrollBy({left:220,behavior:'smooth'}));
+
+// init: load today's JSON and show default provider
+(async()=>{
+  // ensure old caches removed
+  clearOldCaches();
+  const json = await loadRTPJsonDaily();
+  // set default provider currentProvider = 'PP'
+  document.querySelector('.btn-provider[data-provider=\"PP\"]').classList.add('active');
+  document.getElementById('providerTitle').innerText = providerMeta['PP'];
+  // find base percent for PP in json
+  const rtpMap = json.rtp || {};
+  let base = rtpMap['PP'] ?? rtpMap['PR'] ?? 72.3;
+  renderGamesForProvider('PP', base);
+})();
+
+</script>
+
+<script>
+// Efek fade lembut saat klik tombol geser provider
+document.addEventListener('DOMContentLoaded', () => {
+  const leftBtn = document.querySelector('.arrow.left');
+  const rightBtn = document.querySelector('.arrow.right');
+  const slider = document.querySelector('.provider-slider');
+  if(leftBtn && rightBtn && slider){
+    const fadeTime = 300;
+    function fade(action){
+      if(!slider.classList.contains('fade-out')){
+        slider.classList.add('fade-out');
+        setTimeout(()=>{
+          slider.classList.remove('fade-out');
+          slider.classList.add('fade-in');
+          setTimeout(()=> slider.classList.remove('fade-in'), fadeTime);
+        }, fadeTime);
+      }
+    }
+    leftBtn.addEventListener('click', ()=>fade('left'));
+    rightBtn.addEventListener('click', ()=>fade('right'));
+  }
+});
+</script>
+
+
+<script>
+// 🧱 Fallback otomatis untuk gambar provider yang gagal dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.btn-provider img').forEach(img => {
+    img.addEventListener('error', () => {
+      img.src = './assets/images/default_provider.png';
+    });
+  });
+});
+</script>
+
+
+<script>
+// ⚡ v27_fix22: Auto update pola-section setiap kali tombol "Lihat Pola" diklik
+const polaTemplates = [
+  [
+    {title:"Step 1: Panaskan Mesin Slot!",desc:"25X Spin normal (manual tanpa ceklis)"},
+    {title:"Step 2: Naikkan Bet!",desc:"20X Spin cepat (auto)"},
+    {title:"Step 3: Stop Spin!",desc:"3X Tangkap spin (manual tanpa ceklis)"},
+    {title:"Langkah Terakhir",desc:"10X Spin turbo (manual)"}
+  ],
+  [
+    {title:"Step 1: Pemanasan Awal!",desc:"30X Spin manual tanpa auto"},
+    {title:"Step 2: Bet Menengah!",desc:"15X Spin cepat (auto)"},
+    {title:"Step 3: Istirahat Sebentar!",desc:"5X Stop spin (manual)"},
+    {title:"Langkah Terakhir",desc:"12X Spin turbo (manual)"}
+  ],
+  [
+    {title:"Step 1: Uji Mesin Slot!",desc:"20X Spin cepat (auto)"},
+    {title:"Step 2: Bet Maksimal!",desc:"10X Spin manual tanpa auto"},
+    {title:"Step 3: Pendinginan!",desc:"8X Spin normal (manual)"},
+    {title:"Langkah Terakhir",desc:"6X Spin turbo (auto)"}
+  ],
+  [
+    {title:"Step 1: Aktivasi Mesin!",desc:"22X Spin cepat (auto)"},
+    {title:"Step 2: Stabilkan Bet!",desc:"18X Spin manual tanpa auto"},
+    {title:"Step 3: Uji Pola!",desc:"5X Spin manual dengan stop cepat"},
+    {title:"Langkah Terakhir",desc:"10X Spin turbo (auto/manual)"}
+  ]
+];
+
+function updateRandomPola() {
+  const section = document.querySelector('.pola-section');
+  if(!section) return;
+  const randomPola = polaTemplates[Math.floor(Math.random() * polaTemplates.length)];
+  section.innerHTML = randomPola.map(p =>
+    `<div style="font-weight:800;color:#1e9fff;margin-top:10px;margin-bottom:8px">${p.title}</div><div>${p.desc}</div>`
+  ).join('');
+}
+
+// Override fungsi onLihatPola agar auto update pola setiap klik
+if (typeof onLihatPola === "function") {
+  const oldFunc = onLihatPola;
+  onLihatPola = function(providerCode){
+    oldFunc(providerCode);
+    updateRandomPola(); // update pola setiap klik
+  }
+}
+</script>
+
+
+<script>
+// ⚙️ v27_fix23: Auto update pola sesuai provider
+function generatePolaByProvider(providerCode) {
+  providerCode = providerCode.toUpperCase();
+  let spins = [];
+
+  if (providerCode === 'PP') {
+    spins = [10, 20, 30, 50, 70]; // Pragmatic
+    return [
+      {title:"Step 1: Panaskan Mesin Slot!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin cepat (auto)`},
+      {title:"Step 2: Naikkan Bet!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (auto)`},
+      {title:"Step 3: Stop Spin!",desc:"3X Tangkap spin (manual tanpa ceklis)"},
+      {title:"Langkah Terakhir",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (auto)`}
+    ];
+  } else if (providerCode === 'PG') {
+    spins = [10, 30, 50, 80, 100]; // PGSoft
+    return [
+      {title:"Step 1: Panaskan Mesin Slot!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (auto)`},
+      {title:"Step 2: Naikkan Bet!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (auto)`},
+      {title:"Step 3: Stop Spin!",desc:"3X Manual tanpa ceklis"},
+      {title:"Langkah Terakhir",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (auto)`}
+    ];
+  } else {
+    // Default for GG, PS, NC, HB, FP
+    spins = [20, 30, 50, 100];
+    return [
+      {title:"Step 1: Panaskan Mesin Slot!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin normal (manual tanpa ceklis)`},
+      {title:"Step 2: Naikkan Bet!",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin cepat (auto)`},
+      {title:"Step 3: Stop Spin!",desc:`3X Tangkap spin (manual tanpa ceklis)`},
+      {title:"Langkah Terakhir",desc:`${spins[Math.floor(Math.random()*spins.length)]}X Spin turbo (manual)`}
+    ];
+  }
+}
+
+function updateRandomPola(providerCode) {
+  const section = document.querySelector('.pola-section');
+  if(!section) return;
+  const pola = generatePolaByProvider(providerCode);
+  section.innerHTML = pola.map(p =>
+    `<div style="font-weight:800;color:#1e9fff;margin-top:10px;margin-bottom:8px">${p.title}</div><div>${p.desc}</div>`
+  ).join('');
+}
+
+// Override fungsi onLihatPola agar sesuaikan provider
+if (typeof onLihatPola === "function") {
+  const oldFunc = onLihatPola;
+  onLihatPola = function(providerCode){
+    oldFunc(providerCode);
+    updateRandomPola(providerCode);
+  }
+}
+</script>
+
+<!-- 🧭 Fix tombol geser provider untuk mobile & desktop -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const inner = document.getElementById("providerInner");
+  const leftBtn = document.getElementById("arrowLeft");
+  const rightBtn = document.getElementById("arrowRight");
+  if (!inner || !leftBtn || !rightBtn) return;
+
+  const scrollAmt = 200;
+
+  // Tombol panah
+  leftBtn.addEventListener("click", () => {
+    inner.scrollBy({ left: -scrollAmt, behavior: "smooth" });
+  });
+  rightBtn.addEventListener("click", () => {
+    inner.scrollBy({ left: scrollAmt, behavior: "smooth" });
+  });
+
+  // Geser manual (drag di desktop)
+  let isDown = false, startX, scrollLeft;
+  inner.addEventListener("mousedown", e => {
+    isDown = true;
+    startX = e.pageX - inner.offsetLeft;
+    scrollLeft = inner.scrollLeft;
+  });
+  inner.addEventListener("mouseleave", () => isDown = false);
+  inner.addEventListener("mouseup", () => isDown = false);
+  inner.addEventListener("mousemove", e => {
+    if (!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - inner.offsetLeft;
+    inner.scrollLeft = scrollLeft - (x - startX) * 2;
+  });
+
+  // Geser jari di mobile
+  inner.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    scrollLeft = inner.scrollLeft;
+  });
+  inner.addEventListener("touchmove", e => {
+    const x = e.touches[0].clientX;
+    inner.scrollLeft = scrollLeft - (x - startX) * 2;
+  });
+});
+</script>
+<!-- 🔁 Geser provider sekaligus ganti provider aktif + perbaikan auto-scroll -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const providers = ["PP", "PG", "GG", "PS", "NC", "HB", "FP"];
+  const leftBtn = document.getElementById("arrowLeft");
+  const rightBtn = document.getElementById("arrowRight");
+  const providerEls = document.querySelectorAll(".btn-provider");
+  const providerTitle = document.getElementById("providerTitle");
+  let currentIndex = 0;
+
+  function activateProvider(index) {
+    if (index < 0) index = providers.length - 1;
+    if (index >= providers.length) index = 0;
+    currentIndex = index;
+    const code = providers[currentIndex];
+
+    providerEls.forEach(btn => btn.classList.remove("active"));
+    const activeBtn = document.querySelector(`.btn-provider[data-provider="${code}"]`);
+    if (activeBtn) activeBtn.classList.add("active");
+
+    providerTitle.innerText = providerMeta[code] || code;
+
+    loadRTPJsonDaily().then(json => {
+      const rtpMap = json.rtp || {};
+      const base = rtpMap[code] ?? rtpMap[code.replace("PP","PR")] ?? 65;
+      renderGamesForProvider(code, base);
+    });
+
+    // ✅ Auto-scroll provider ke tengah layar dengan koreksi padding kiri
+    const inner = document.getElementById("providerInner");
+    const btn = document.querySelector(`.btn-provider[data-provider="${code}"]`);
+    if (btn && inner) {
+      let offset = btn.offsetLeft - inner.clientWidth / 2 + btn.clientWidth / 2;
+      if (offset < 0) offset = 0; // cegah scroll negatif
+      inner.scrollTo({ left: offset + 40, behavior: "smooth" }); // tambah 40px biar tidak tertahan di pinggir
+    }
+  }
+
+  leftBtn.addEventListener("click", () => activateProvider(currentIndex - 1));
+  rightBtn.addEventListener("click", () => activateProvider(currentIndex + 1));
+  providerEls.forEach((btn, idx) => btn.addEventListener("click", () => currentIndex = idx));
+});
+</script>
+
+
+<style>
+/* 🌈 v27_fix34_final: Provider responsive scroll (desktop show all, mobile scrollable) */
+.provider-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.provider-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.provider-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  justify-content: center;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 16px;
+}
+
+.provider-item {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-provider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 10px;
+  width: 100px;
+  transition: transform 0.3s ease;
+}
+.btn-provider img {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.btn-provider:hover {
+  transform: scale(1.05);
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+.provider-list::-webkit-scrollbar {
+  display: none;
+}
+.provider-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Arrows */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 24px;
+  transition: background 0.3s ease;
+}
+.arrow.left { left: 6px; }
+.arrow.right { right: 6px; }
+.arrow:hover { background: rgba(0,255,150,0.7); }
+
+/* Desktop: show all providers */
+@media (min-width: 1024px) {
+  .provider-list {
+    overflow-x: visible;
+    justify-content: center;
+  }
+}
+
+/* Mobile: enable horizontal scroll */
+@media (max-width: 1023px) {
+  .provider-list {
+    overflow-x: auto;
+  }
+}
+</style>
+
+<script>
+// 🎯 v27_fix34_final: Arrow scroll for provider list (mobile horizontal scroll)
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('providerList');
+  const left = document.getElementById('arrowLeft');
+  const right = document.getElementById('arrowRight');
+  if(!list) return;
+
+  left?.addEventListener('click', () => {
+    list.scrollBy({ left: -200, behavior: 'smooth' });
+  });
+  right?.addEventListener('click', () => {
+    list.scrollBy({ left: 200, behavior: 'smooth' });
+  });
+});
+</script>
+
+
+<style>
+/* 🌈 v27_fix34: Perfect mobile scroll — first provider visible, scrollable all sides */
+.provider-wrapper {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.provider-inner {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.provider-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  justify-content: flex-start;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.provider-item {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-provider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 10px;
+  width: 95px;
+  transition: transform 0.3s ease;
+}
+.btn-provider img {
+  width: 68px;
+  height: 68px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+.btn-provider:hover {
+  transform: scale(1.05);
+}
+
+/* Hide scrollbar visually */
+.provider-list::-webkit-scrollbar {
+  display: none;
+}
+.provider-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Arrows */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 24px;
+  transition: background 0.3s ease;
+}
+.arrow.left { left: 6px; }
+.arrow.right { right: 6px; }
+.arrow:hover { background: rgba(0,255,150,0.7); }
+
+/* Desktop: show all providers */
+@media (min-width: 1024px) {
+  .provider-list {
+    overflow-x: visible;
+    justify-content: center;
+    padding: 10px 0;
+  }
+}
+
+/* Mobile: allow horizontal scroll */
+@media (max-width: 1023px) {
+  .provider-list {
+    overflow-x: auto;
+  }
+}
+</style>
+
+<script>
+// 🎯 v27_fix34: Provider scroll fix — first visible, arrows scroll smoothly
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('providerList');
+  const left = document.getElementById('arrowLeft');
+  const right = document.getElementById('arrowRight');
+  if (!list) return;
+
+  // Make sure start position always shows first provider fully
+  list.scrollLeft = 0;
+
+  const scrollStep = 200;
+
+  left?.addEventListener('click', () => {
+    list.scrollBy({ left: -scrollStep, behavior: 'smooth' });
+  });
+  right?.addEventListener('click', () => {
+    list.scrollBy({ left: scrollStep, behavior: 'smooth' });
+  });
+
+  // Enable drag-scroll (for better mobile & desktop UX)
+  let isDown = false;
+  let startX, scrollLeft;
+  list.addEventListener('mousedown', (e) => {
+    isDown = true;
+    list.classList.add('active');
+    startX = e.pageX - list.offsetLeft;
+    scrollLeft = list.scrollLeft;
+  });
+  list.addEventListener('mouseleave', () => isDown = false);
+  list.addEventListener('mouseup', () => isDown = false);
+  list.addEventListener('mousemove', (e) => {
+    if(!isDown) return;
+    e.preventDefault();
+    const x = e.pageX - list.offsetLeft;
+    const walk = (x - startX) * 1.2; // scroll speed
+    list.scrollLeft = scrollLeft - walk;
+  });
+});
+</script>
+
+</body>
+</html>
+ <!-- ===== New Footer Logos Section ===== -->
+  <footer class="logo-footer">
+<div class="logo-container">
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-0.png" alt="AG"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-1.png" alt="Board Games"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-2.png" alt="EBET"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-3.png" alt="PG"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-4.png" alt="SPORTS"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-5.png" alt="WM"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-6.png" alt="Gameplay"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-7.png" alt="Joker"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-8.png" alt="ICG"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="work_together-9.png" alt="S128"></a></div>
+
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="authentication-0.svg" alt="MGA"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="authentication-1.svg" alt="Financial Services Commission"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="authentication-2.svg" alt="Gambling Commission"></a></div>
+  <div class="logo-item"><a href="https://mejadaftar.com/?referralid=jejeop" ><img src="authentication-3.svg" alt="PAGCOR"></a></div>
+</div>
+
+    <p class="footer-text">
+      PIONEER memiliki lisensi legal yang dikeluarkan oleh European Malta MGA. Komisi Pengawasan GC Inggris 
+      dan Pemerintah Filipina (PAGCOR). Terdaftar di Kepulauan Virgin Britania Raya. Ini adalah perusahaan legal 
+      yang diakui oleh asosiasi industri internasional. Pastikan Anda berusia minimal 18 tahun sebelum mendaftar 
+      dan bermain dengan bijak. Hak Cipta © 2021–2025 PIONEER. Semua Hak Dilindungi Undang-undang.
+    </p>
+  </footer>
+
+</div>
+
